@@ -2,27 +2,25 @@
 
 # Rasbora
 
-Rasbora is a CLI toolkit written in Ruby for efficiently and easily provisioning a remote VPS to host Ruby applications. 
+Rasbora is a shell script that sets you up a Ruby app server in a box. 
 
 # This project is under active development. Please check back soon!
 
-Rasbora is intended to exist in small infrastructures--i.e., one or two servers. The whole point is to use your own DigitalOcean, AWS, Linode, GC, or whatever VPS provider without having to dive into Chef or Puppet. 
+Rasbora is intended to exist in small infrastructures--i.e., one or two servers. The whole point is to use your own DigitalOcean, AWS, Linode, GC, or whatever VPS provider without having to dive into Capistrano, Chef, or Puppet. 
 
 Think of Rasbora as a way to rapidly create a remote server for a Ruby application. A server-in-a-box, if you will. 
+
+# Installation
+
+As of right now, the script does nothing. Stay tuned for the next commit!
 
 ## Milestones
 
 ### v0.1.0
 
+The following is an example of what 0.1.0 will yield:
+
 ```
-$> ras new "my-todo-app" --server lawsonry.com
-
-Who will be the deploying user? jessefish
-What is jessefish's password? *************
-Thanks! I'm setting things up now.
-
-...................
-
 Your new application has been scaffolded!
 
 App URL: https://my-todo-app.lawsonry.com
@@ -39,10 +37,27 @@ When you're ready to push changes:
 git push -u origin master
 ```
 
+### v0.2.0
+
+This version will yield the following commands:
+
+* `rasbora new "my-app-name"`: Creates a new app at `my-app-name.yourserver.com` and sends you the relevant git information to get started immediately.
+
+### v0.3.0
+
+This version will yield the following commands:
+
+* Rasbora allows multiple apps to be deployed and configured at the same time. 
+* `rasbora list`: Gives you a list of all currently hosted Ruby apps.
 ## Development
 
 1. `git clone`
-2. `cd rasbora && bundle install`
+2. `cd rasbora`
+3. `vim rasbora.sh`
+4. "Why am I using Vim? What is wrong with me?"
+5. Realize you're going to use Vim anyway. 
+6. :wq!
+7. git 
 
 ## Contributing
 

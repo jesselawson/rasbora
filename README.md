@@ -18,7 +18,10 @@ You can see what the script does by examining `rasbora.sh`. At the time of this 
 
 ### v0.0.5
 
-The following is an example of what 0.0.0 will yield:
+Todo: 
+[_] Test rasbora.sh on Ubuntu 16.04 LTS
+
+The following is an example of what 0.0.5 will yield:
 
 ```
 Your new application has been scaffolded!

@@ -16,9 +16,9 @@ You can see what the script does by examining `rasbora.sh`. At the time of this 
 
 ## Milestones
 
-### v0.1.0
+### v0.0.5
 
-The following is an example of what 0.1.0 will yield:
+The following is an example of what 0.0.0 will yield:
 
 ```
 Your new application has been scaffolded!
@@ -29,11 +29,8 @@ Repo: git@mercury.tld:/my-todo-app.git
 Instructions: 
 
 On your workstation, clone your new repo:
-
 git clone jessefish@mercury.tld:/my-todo-app.git
-
 When you're ready to push changes:
-
 git push -u origin master
 ```
 
@@ -53,7 +50,9 @@ This version will yield the following commands:
 
 * Rasbora allows multiple apps to be deployed and configured at the same time. 
 * `rasbora list`: Gives you a list of all currently hosted Ruby apps.
-## Development
+## Contributing
+
+Note: ~< v0.1.0 of Rasbora is written in Bash, with the very real possibility that it will be ported to Ruby for v>0.1.0. Keep that in mind as you push changes to the shell script. 
 
 1. `git clone`
 2. `cd rasbora`
@@ -62,6 +61,8 @@ This version will yield the following commands:
 5. Realize you're going to use Vim anyway. 
 6. :wq!
 7. git 
+
+Please adhere to the Code of Conduct.
 
 ## Contributing
 
@@ -79,4 +80,4 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 ## Acknowledgments
 
-* Special thanks to [Rogie](https://github.com/rogie) for the use of the rabora logo aka the "Gillustration" :D
+* Special thanks to [Rogie](https://github.com/rogie) for the use of the rasbora logo aka the "Gillustration" :D

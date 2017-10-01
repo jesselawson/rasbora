@@ -10,9 +10,9 @@ Rasbora is intended to exist in small infrastructures--i.e., one or two servers.
 
 Think of Rasbora as a way to rapidly create a remote server for a Ruby application. A server-in-a-box, if you will. 
 
-# Installation
+# Usage
 
-As of right now, the script does nothing. Stay tuned for the next commit!
+You can see what the script does by examining `rasbora.sh`. At the time of this commit, it's about 80% done. 
 
 ## Milestones
 
@@ -42,6 +42,10 @@ git push -u origin master
 This version will yield the following commands:
 
 * `rasbora new "my-app-name"`: Creates a new app at `my-app-name.yourserver.com` and sends you the relevant git information to get started immediately.
+
+* `rasbora new "my-app-name": The default new application command, which uses PostgreSQL as the DB.
+* `rasbora new "my-app-name" -d mysql`: Create a new app and use MySQL as the DB.
+* `rasbora new "my-app-name" -d mariadb`: Create a new app and use MariaDB as the DB.
 
 ### v0.3.0
 

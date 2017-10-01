@@ -3,7 +3,8 @@
 # Get the logged in user
 CURRENT_USER=`whoami`
 
-cat <<EOF
+cat << "EOF"
+
                      ___            __________
                     /   \          /          \
                  __/_/_/_\________/ / / /  /   \
@@ -32,10 +33,9 @@ https://lawsonry.com/rasbora            '   _    \
 | |     / /   | |_.'.'.-'  / |/\'..' /              | |     / /   | |_ 
 |_|     \ \._,\ '/.'   \_.'  '  `'-'`               |_|     \ \._,\ '/ 
          `--'  `"                                            `--'  `"  
-
-Hi, $CURRENT_USER! Welcome to Rasbora! The Rails app server in a box. 
-
 EOF
+
+echo -e "Hi, $CURRENT_USER! Welcome to Rasbora! The Rails app server in a box.\n"
 
 echo -e "* * ** *** ***** ******** ************* ******** ***** *** ** * *\n"
 
@@ -51,6 +51,7 @@ read -p "Now I'll need the FQDN of your first app.\nExample: my-todo-app.lawsonr
 
 APP_NAME=${APP_NAME:-testapp}
 SHORT_APP_NAME=$APP_NAME | cut -d"." -f1
+SHORT_APP_NAME_UPCASE=$SHORT_APP_NAME | tr [a-z] [A-Z]
 
 echo -e "\n\n"
 
@@ -65,7 +66,7 @@ apt-get upgrade -y &>> /dev/null
 echo -e "Done!\n"
 
 echo "Installing rbenv prerequisites... "
-sudo apt-get install git-core curl zlib1g-dev build-essential libssl-dev libreadline-dev libyaml-dev libsqlite3-dev sqlite3 libxml2-dev libxslt1-dev libcurl4-openssl-dev python-software-properties libffi-dev postgresql postgresql-contrib libpq-dev -y &>> /dev/null
+sudo apt-get install git-core curl zlib1g-dev build-essential libssl-dev libreadline-dev libyaml-dev libsqlite3-dev sqlite3 libxml2-dev libxslt1-dev libcurl4-openssl-dev python-software-properties libffi-dev postgresql postgresql-contrib libpq-dev rake -y &>> /dev/null
 echo -e "Done!\n"
 
 # TODO: Give user the option to configure different types of databases. Like this:
@@ -84,8 +85,9 @@ echo 'export PATH="$HOME/.rbenv/plugins/ruby-build/bin:$PATH"' >> ~/.bash_profil
 source ~/.bash_profile
 echo -e "Done!\n"
 
-echo "Installing Ruby via rbenv..."
+echo "Installing Ruby via rbenv... "
 RUBY_VERSION=$(`rbenv install -l | sed -n '/^[[:space:]]*[0-9]\{1,\}\.[0-9]\{1,\}\.[0-9]\{1,\}[[:space:]]*$/ h;${g;p;}'`)
+echo "Found v${RUBY_VERSION}... "
 rbenv install -v $RUBY_VERSION &>> /dev/null
 rbenv global $RUBY_VERSION
 echo "gem: --no-document" > ~/.gemrc &>> /dev/null
@@ -98,6 +100,10 @@ echo -e "Done!\n"
 echo "Installing Rails... "
 gem install rails &>> /dev/null
 rbenv rehash
+echo -e "Done!\n"
+
+echo "Installing all dependencies for Rails... "
+bundle install
 echo -e "Done!\n"
 
 echo "Installing Node for any those Rails features that require it... "
@@ -114,26 +120,72 @@ echo -e "Done!\n"
 
 echo "Creating database for $APP_NAME... "
 cd $SHORT_APP_NAME
-read -p "What username do you want to use for this app's database (Default [Enter]: $SHORT_APP_NAME)> " DBUSER
+read -p "What username do you want to use for this app's database (Default [Enter]: ${SHORT_APP_NAME})> " DBUSER
 echo -e "\n"
 read -sp "What do you want for $DBUSER's password? " DBPASS
 echo -e "\n"
 psql -U postgres -c "CREATE USER $DBUSER WITH PASSWORD '$DBPASS';" &>> /dev/null
+# TODO: Test successful creation of user
 echo -e "\nFinished creating database w/ credentials!\n"
 
 echo "Configuring Rails app database settings... "
-cd ~/$_SHORT_APP_NAME
-# Update database entry in database.yml
-sed -i -e "s/database: .*/database: $SHORT_APP_NAME\_production/g" config/database.yml
-# Update username and password environmental var declarations
-# sed -i -e "s/APPNAME_DATABASE_USER/database: $SHORT_APP_NAME\_production/g" config/database.yml
+cd ~/${SHORT_APP_NAME}
 
-# CURRENT LOCATION OF WHERE WORK SHOULD CONTINUE
-# HEY I TOLD YOU THIS WAS A WORK IN PROGRESS!
+# Replace the contents of the config/database.yml file
+# TODO: Replace contents based on type of database requested
+# Postgresql has a specific type of setting, for which I've used the default values of a dummy rails app
+# MySQL (and MariaDB) have different settings, like adding the socket: variable. 
+# The next iteration needs to account for this. 
 
-#TODO: INSTALL RBENV-VARS, CONFIG VARS, rake secret, etc, INSTALL PUMA, CONFIG PUMA
+cat << EOF > config/database.yml
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  # For details on connection pooling, see Rails configuration guide
+  # http://guides.rubyonrails.org/configuring.html#database-pooling
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  username: <%= ENV.fetch("${SHORT_APP_NAME_UPCASE}_DBUSER") %>
+  password: <%= ENV.fetch("${SHORT_APP_NAME_UPCASE}_DBPASS") %>
+
+development:
+  <<: *default
+  database: ${SHORT_APP_NAME}_development
+
+test:
+  <<: *default
+  database: ${SHORT_APP_NAME}_test
+
+production:
+  <<: *default
+  database: ${SHORT_APP_NAME}_production
+EOF
+
+echo -e "Done!\n"
+
 # See: https://www.digitalocean.com/community/tutorials/how-to-deploy-a-rails-app-with-puma-and-nginx-on-ubuntu-14-04#prerequisites
 
+# Install rbenv-vars
+echo "Installing rbenv-vars for environment variables... "
+cd ~/.rbenv/plugins
+git clone https://github.com/sstephenson/rbenv-vars.git
+cd ~/${SHORT_APP_NAME}
+echo -e "\nGenerating secret... "
+RAKE_SECRET=`rake secret`
+echo -e "\nPopulating .rbenv-vars... "
+cat << EOF > ~/${SHORT_APP_NAME}/.rbenv-vars
+SECRET_KEY_BASE=${RAKE_SECRET}
+${SHORT_APP_NAME}_DBUSER=${DBUSER}
+${SHORT_APP_NAME}_DBPASS=${DBPASS}
+EOF
+echo -e "Done!\nThe following environment variables have been added: \n"
+rbenv vars
+
+echo "Installing puma... "
+gem install puma 
+echo "Starting puma... "
+
+# start puma 
+puma
 
 echo -e "Done!\n"
 
@@ -143,9 +195,12 @@ echo -e "Done!\n"
 
 echo "Configuring Nginx... "
 
+# CRITICAL TODO: Installing puma via the Gemfile will cause the unix socket to be in a subfolder
+# of the app. We need to move the socket location to a standard directory. 
+
 cat << EOF > /etc/nginx/sites-available/$APP_NAME
 upstream app {
-    # Path to Puma SOCK file, as defined previously
+    
     server unix:/home/$CURRENT_USER/$SHORT_APP_NAME/shared/sockets/puma.sock fail_timeout=0;
 }
 
@@ -169,4 +224,6 @@ server {
     keepalive_timeout 10;
 }
 EOF
+
+# This is still under construction. Use at your own risk!
 
